@@ -1,5 +1,6 @@
 if (typeof document !== 'undefined') {
     const { body } = document
+    const scoreFontFamily = window.getComputedStyle(body).fontFamily
 
     //canvas codes
     const canvas = document.createElement('canvas')
@@ -12,9 +13,17 @@ if (typeof document !== 'undefined') {
 
     //paddle code
     const paddleHeight = 150
-    const paddleWidth = 15
-    let paddleRightY = 225
-    let paddleLeftY = 225
+    const paddleWidth = 20
+    let paddleRightY = (height - paddleHeight) / 2
+    let paddleLeftY = (height - paddleHeight) / 2
+    //global variables
+    let ballX = width / 2
+    let ballY = height / 2
+    const ballRadius = 15
+    // score
+    let playerScore = 0
+    let botScore = 0
+    const winningScore = 7
 
     //generating canvas
     const renderCanvas = () => {
@@ -27,6 +36,17 @@ if (typeof document !== 'undefined') {
         context.fillRect(30, paddleLeftY, paddleWidth, paddleHeight)
         //right paddle
         context.fillRect(width - paddleWidth - 30, paddleRightY, paddleWidth, paddleHeight)
+        //ball
+        context.beginPath()
+        context.arc(ballX, ballY, ballRadius, 2 * Math.PI, Number(false))
+        context.fillStyle = 'white'
+        context.fill()
+        // score
+        context.font = `700 64px ${scoreFontFamily}`
+        context.textAlign = 'right'
+        context.fillText(String(playerScore), canvas.width / 2 - 20, 80)
+        context.textAlign = 'left'
+        context.fillText(String(botScore), canvas.width / 2 + 20, 80)
     }
     const createCanvas = () => {
         canvas.width = width
