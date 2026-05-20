@@ -8,8 +8,8 @@ if (typeof document !== 'undefined') {
     if (!context) {
         throw new Error('2D context is not supported in this browser.')
     }
-    const width = window.innerWidth
-    const height = window.innerHeight
+    let width = window.innerWidth
+    let height = window.innerHeight
 
     //paddle code
     const paddleHeight = 150
@@ -54,5 +54,13 @@ if (typeof document !== 'undefined') {
         body.appendChild(canvas)
         renderCanvas()
     }
+    const handleResize = () => {
+        width = window.innerWidth
+        height = window.innerHeight
+        canvas.width = width
+        canvas.height = height
+        renderCanvas()
+    }
     createCanvas()
+    window.addEventListener('resize', handleResize)
 }
