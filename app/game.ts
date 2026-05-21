@@ -14,16 +14,85 @@ if (typeof document !== 'undefined') {
     //paddle code
     const paddleHeight = 150
     const paddleWidth = 20
+    const leftPaddleX = 30
+    const rightPaddleX = width - paddleWidth - 30
     let paddleRightY = (height - paddleHeight) / 2
     let paddleLeftY = (height - paddleHeight) / 2
+    let paddleBottomX = width / 2 - paddleWidth / 2
+    let paddleTopX = width / 2 - paddleWidth / 2
+    const paddleDiff = paddleWidth / 2
+    let playerMoved = false
+    let paddleContact = false
+    let trajectoryX = 0
     //global variables
     let ballX = width / 2
     let ballY = height / 2
     const ballRadius = 15
+    let speedY = 0
+    let speedX = 10
+    let computerSpeed = 3
     // score
     let playerScore = 0
     let botScore = 0
     const winningScore = 7
+    const ballMove = () => {
+        // Vertical Speed
+        ballY += - speedY
+        // Horizontal Speed
+        ballX += speedX
+    }
+    const ballReset = () => {
+        ballX = width / 2
+        ballY = height / 2
+        speedY = 0
+        speedX = -3
+        paddleContact = false
+    }
+    const ballBoundaries = () => {
+        // Bounce off Top/Bottom walls
+        if (ballY - ballRadius < 0 && speedY > 0) {
+            speedY = -speedY
+        }
+        if (ballY + ballRadius > height && speedY < 0) {
+            speedY = -speedY
+        }
+        // Bounce off left paddle
+        if (
+            ballX - ballRadius <= leftPaddleX + paddleWidth &&
+            ballX - ballRadius >= leftPaddleX &&
+            ballY >= paddleLeftY &&
+            ballY <= paddleLeftY + paddleHeight
+        ) {
+            speedX = -speedX
+        }
+        // Bounce off right paddle
+        if (
+            ballX + ballRadius >= rightPaddleX &&
+            ballX + ballRadius <= rightPaddleX + paddleWidth &&
+            ballY >= paddleRightY &&
+            ballY <= paddleRightY + paddleHeight
+        ) {
+            speedX = -speedX
+        }
+        // Score when ball passes left/right side
+        if (ballX < 0) {
+            ballReset()
+            playerScore++
+        }
+        if (ballX > width) {
+            ballReset()
+            botScore++
+        }
+    }
+    const botAI = () => {
+        if (playerMoved) {
+            if (paddleTopX + paddleDiff < ballX) {
+                paddleTopX += computerSpeed
+            } else {
+                paddleTopX -= computerSpeed
+            }
+        }
+    }
 
     //generating canvas
     const renderCanvas = () => {
@@ -33,9 +102,9 @@ if (typeof document !== 'undefined') {
         //paddle color
         context.fillStyle = 'white'
         //left paddle
-        context.fillRect(30, paddleLeftY, paddleWidth, paddleHeight)
+        context.fillRect(leftPaddleX, paddleLeftY, paddleWidth, paddleHeight)
         //right paddle
-        context.fillRect(width - paddleWidth - 30, paddleRightY, paddleWidth, paddleHeight)
+        context.fillRect(rightPaddleX, paddleRightY, paddleWidth, paddleHeight)
         //ball
         context.beginPath()
         context.arc(ballX, ballY, ballRadius, 2 * Math.PI, Number(false))
@@ -61,6 +130,14 @@ if (typeof document !== 'undefined') {
         canvas.height = height
         renderCanvas()
     }
+    const animate = () => {
+        ballMove()
+        ballBoundaries()
+        botAI()
+        renderCanvas()
+        window.requestAnimationFrame(animate)
+    }
     createCanvas()
     window.addEventListener('resize', handleResize)
+    window.requestAnimationFrame(animate)
 }
