@@ -1,6 +1,7 @@
 if (typeof document !== 'undefined') {
     const { body } = document
     const scoreFontFamily = window.getComputedStyle(body).fontFamily
+    const gameOverDiv = document.createElement('div')
 
     //canvas codes
     const canvas = document.createElement('canvas')
@@ -28,32 +29,57 @@ if (typeof document !== 'undefined') {
     let ballX = width / 2
     let ballY = height / 2
     const ballRadius = 15
+    const baseBallSpeed = 16
     let speedY = 0
-    let speedX = 10
-    let computerSpeed = 3
+    let speedX = 0
+    let computerSpeed = 12
     // score
     let playerScore = 0
     let botScore = 0
     const winningScore = 7
+    let isNewGame = true
+    let isGameOver = false
+    const clampPaddleY = (value: number) => Math.max(0, Math.min(height - paddleHeight, value))
+    const gameOver = () => {
+      if(playerScore === winningScore || botScore === winningScore) {
+        isGameOver = true
+      }
+    }
+    const showGameOverMsg = (winner: string) => {
+      //hide canvas
+      canvas.hidden = true
+      gameOverDiv.textContent = ''
+      const title = document.createElement('h1')
+      title.textContent = `${winner} Wins!!!`
+      const playAgainBtn = document.createElement('button')
+      playAgainBtn.setAttribute('onclick', 'startGame()')
+      playAgainBtn.textContent = 'Play Again'
+      gameOverDiv.append(title, playAgainBtn)
+      body.appendChild(gameOverDiv)
+    }
+    const setBallVelocity = (direction: -1 | 1) => {
+        const angle = (Math.random() * Math.PI) / 3 - Math.PI / 6
+        speedX = direction * baseBallSpeed * Math.cos(angle)
+        speedY = baseBallSpeed * Math.sin(angle)
+    }
     const ballMove = () => {
         // Vertical Speed
-        ballY += - speedY
+        ballY += speedY
         // Horizontal Speed
         ballX += speedX
     }
     const ballReset = () => {
         ballX = width / 2
         ballY = height / 2
-        speedY = 0
-        speedX = -3
+        setBallVelocity(Math.random() < 0.5 ? -1 : 1)
         paddleContact = false
     }
     const ballBoundaries = () => {
         // Bounce off Top/Bottom walls
-        if (ballY - ballRadius < 0 && speedY > 0) {
+        if (ballY - ballRadius <= 0 && speedY < 0) {
             speedY = -speedY
         }
-        if (ballY + ballRadius > height && speedY < 0) {
+        if (ballY + ballRadius >= height && speedY > 0) {
             speedY = -speedY
         }
         // Bounce off left paddle
@@ -63,7 +89,10 @@ if (typeof document !== 'undefined') {
             ballY >= paddleLeftY &&
             ballY <= paddleLeftY + paddleHeight
         ) {
-            speedX = -speedX
+            const hitPosition = (ballY - (paddleLeftY + paddleHeight / 2)) / (paddleHeight / 2)
+            speedY = hitPosition * baseBallSpeed
+            speedX = Math.abs(speedX)
+            ballX = leftPaddleX + paddleWidth + ballRadius
         }
         // Bounce off right paddle
         if (
@@ -72,7 +101,10 @@ if (typeof document !== 'undefined') {
             ballY >= paddleRightY &&
             ballY <= paddleRightY + paddleHeight
         ) {
-            speedX = -speedX
+            const hitPosition = (ballY - (paddleRightY + paddleHeight / 2)) / (paddleHeight / 2)
+            speedY = hitPosition * baseBallSpeed
+            speedX = -Math.abs(speedX)
+            ballX = rightPaddleX - ballRadius
         }
         // Score when ball passes left/right side
         if (ballX < 0) {
@@ -85,13 +117,13 @@ if (typeof document !== 'undefined') {
         }
     }
     const botAI = () => {
-        if (playerMoved) {
-            if (paddleTopX + paddleDiff < ballX) {
-                paddleTopX += computerSpeed
-            } else {
-                paddleTopX -= computerSpeed
-            }
+        const paddleCenter = paddleRightY + paddleHeight / 2
+        if (paddleCenter < ballY) {
+            paddleRightY += computerSpeed
+        } else if (paddleCenter > ballY) {
+            paddleRightY -= computerSpeed
         }
+        paddleRightY = clampPaddleY(paddleRightY)
     }
 
     //generating canvas
@@ -123,11 +155,28 @@ if (typeof document !== 'undefined') {
         body.appendChild(canvas)
         renderCanvas()
     }
+    const startGame = () => {
+      //inside startGame function
+      if (isGameOver && !isNewGame) {
+        body.removeChild(gameOverDiv)
+        canvas.hidden = false
+      }
+      isGameOver = false
+      isNewGame = false
+    }
+    const handleMouseMove = (event: MouseEvent) => {
+        const rect = canvas.getBoundingClientRect()
+        const mouseY = event.clientY - rect.top
+        paddleLeftY = clampPaddleY(mouseY - paddleHeight / 2)
+        playerMoved = true
+    }
     const handleResize = () => {
         width = window.innerWidth
         height = window.innerHeight
         canvas.width = width
         canvas.height = height
+        paddleLeftY = clampPaddleY(paddleLeftY)
+        paddleRightY = clampPaddleY(paddleRightY)
         renderCanvas()
     }
     const animate = () => {
@@ -138,6 +187,9 @@ if (typeof document !== 'undefined') {
         window.requestAnimationFrame(animate)
     }
     createCanvas()
+    startGame()
+    ballReset()
+    canvas.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('resize', handleResize)
     window.requestAnimationFrame(animate)
 }
