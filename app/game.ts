@@ -52,8 +52,8 @@ if (typeof document !== 'undefined') {
       const title = document.createElement('h1')
       title.textContent = `${winner} Wins!!!`
       const playAgainBtn = document.createElement('button')
-      playAgainBtn.setAttribute('onclick', 'startGame()')
       playAgainBtn.textContent = 'Play Again'
+      playAgainBtn.addEventListener('click', startGame)
       gameOverDiv.append(title, playAgainBtn)
       body.appendChild(gameOverDiv)
     }
@@ -156,13 +156,23 @@ if (typeof document !== 'undefined') {
         renderCanvas()
     }
     const startGame = () => {
+      const restartFromGameOver = isGameOver && !isNewGame
       //inside startGame function
-      if (isGameOver && !isNewGame) {
+      if (restartFromGameOver) {
         body.removeChild(gameOverDiv)
         canvas.hidden = false
       }
+      playerScore = 0
+      botScore = 0
+      paddleLeftY = (height - paddleHeight) / 2
+      paddleRightY = (height - paddleHeight) / 2
+      ballReset()
+      renderCanvas()
       isGameOver = false
       isNewGame = false
+      if (restartFromGameOver) {
+        window.requestAnimationFrame(animate)
+      }
     }
     const handleMouseMove = (event: MouseEvent) => {
         const rect = canvas.getBoundingClientRect()
@@ -180,15 +190,23 @@ if (typeof document !== 'undefined') {
         renderCanvas()
     }
     const animate = () => {
+        if (isGameOver) {
+            return
+        }
         ballMove()
         ballBoundaries()
         botAI()
+        gameOver()
+        if (isGameOver) {
+            const winner = playerScore === winningScore ? 'Player' : 'Bot'
+            showGameOverMsg(winner)
+            return
+        }
         renderCanvas()
         window.requestAnimationFrame(animate)
     }
     createCanvas()
     startGame()
-    ballReset()
     canvas.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('resize', handleResize)
     window.requestAnimationFrame(animate)
