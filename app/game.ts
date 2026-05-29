@@ -39,6 +39,7 @@ if (typeof document !== 'undefined') {
     const winningScore = 7
     let isNewGame = true
     let isGameOver = false
+    const botAimDeadzone = 4
     const clampPaddleY = (value: number) => Math.max(0, Math.min(height - paddleHeight, value))
     const gameOver = () => {
       if(playerScore === winningScore || botScore === winningScore) {
@@ -117,12 +118,37 @@ if (typeof document !== 'undefined') {
         }
     }
     const botAI = () => {
-        const paddleCenter = paddleRightY + paddleHeight / 2
-        if (paddleCenter < ballY) {
-            paddleRightY += computerSpeed
-        } else if (paddleCenter > ballY) {
-            paddleRightY -= computerSpeed
+        const predictBallYAtRightPaddle = () => {
+            if (speedX <= 0) {
+                return height / 2
+            }
+            const travelX = rightPaddleX - ballX
+            if (travelX <= 0) {
+                return ballY
+            }
+            const framesUntilIntercept = travelX / speedX
+            const rawY = ballY + speedY * framesUntilIntercept
+            const minY = ballRadius
+            const maxY = height - ballRadius
+            const playHeight = maxY - minY
+            const period = playHeight * 2
+            let foldedY = (rawY - minY) % period
+            if (foldedY < 0) {
+                foldedY += period
+            }
+            if (foldedY > playHeight) {
+                foldedY = period - foldedY
+            }
+            return minY + foldedY
         }
+        const targetY = predictBallYAtRightPaddle()
+        const paddleCenter = paddleRightY + paddleHeight / 2
+        const deltaY = targetY - paddleCenter
+        if (Math.abs(deltaY) <= botAimDeadzone) {
+            return
+        }
+        const step = Math.sign(deltaY) * Math.min(computerSpeed, Math.abs(deltaY))
+        paddleRightY += step
         paddleRightY = clampPaddleY(paddleRightY)
     }
 
