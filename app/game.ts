@@ -110,11 +110,11 @@ if (typeof document !== 'undefined') {
         // Score when ball passes left/right side
         if (ballX < 0) {
             ballReset()
-            playerScore++
+            botScore++
         }
         if (ballX > width) {
             ballReset()
-            botScore++
+            playerScore++
         }
     }
     const botAI = () => {
