@@ -9,14 +9,15 @@ if (typeof document !== 'undefined') {
     if (!context) {
         throw new Error('2D context is not supported in this browser.')
     }
+    const bottomGap = 100
     let width = window.innerWidth
-    let height = window.innerHeight
+    let height = window.innerHeight - bottomGap
 
     //paddle code
     const paddleHeight = 150
     const paddleWidth = 20
     const leftPaddleX = 30
-    const rightPaddleX = width - paddleWidth - 30
+    let rightPaddleX = width - paddleWidth - 30
     let paddleRightY = (height - paddleHeight) / 2
     let paddleLeftY = (height - paddleHeight) / 2
     let paddleBottomX = width / 2 - paddleWidth / 2
@@ -29,7 +30,7 @@ if (typeof document !== 'undefined') {
     let ballX = width / 2
     let ballY = height / 2
     const ballRadius = 15
-    const baseBallSpeed = 16
+    const baseBallSpeed = 20
     let speedY = 0
     let speedX = 0
     let computerSpeed = 12
@@ -178,6 +179,10 @@ if (typeof document !== 'undefined') {
     const createCanvas = () => {
         canvas.width = width
         canvas.height = height
+        canvas.style.position = 'fixed'
+        canvas.style.top = '0'
+        canvas.style.left = '0'
+        canvas.style.display = 'block'
         body.appendChild(canvas)
         renderCanvas()
     }
@@ -208,7 +213,8 @@ if (typeof document !== 'undefined') {
     }
     const handleResize = () => {
         width = window.innerWidth
-        height = window.innerHeight
+        height = window.innerHeight - bottomGap
+        rightPaddleX = width - paddleWidth - 30
         canvas.width = width
         canvas.height = height
         paddleLeftY = clampPaddleY(paddleLeftY)
