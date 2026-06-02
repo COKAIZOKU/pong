@@ -2,6 +2,9 @@ if (typeof document !== 'undefined') {
     const { body } = document
     const scoreFontFamily = window.getComputedStyle(body).fontFamily
     const gameOverDiv = document.createElement('div')
+    gameOverDiv.style.backgroundColor = '#0483F8'
+    gameOverDiv.style.width = '100vw'
+    gameOverDiv.style.height = '100vh'
 
     //canvas codes
     const canvas = document.createElement('canvas')
@@ -156,10 +159,10 @@ if (typeof document !== 'undefined') {
     //generating canvas
     const renderCanvas = () => {
         //canvas background
-        context.fillStyle = 'black'
+        context.fillStyle = '#0483F8'
         context.fillRect( 0, 0, width, height)
         //paddle color
-        context.fillStyle = 'white'
+        context.fillStyle = 'black'
         //left paddle
         context.fillRect(leftPaddleX, paddleLeftY, paddleWidth, paddleHeight)
         //right paddle
