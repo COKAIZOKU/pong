@@ -2,9 +2,18 @@ if (typeof document !== 'undefined') {
     const { body } = document
     const scoreFontFamily = window.getComputedStyle(body).fontFamily
     const gameOverDiv = document.createElement('div')
-    gameOverDiv.style.backgroundColor = '#0483F8'
+    gameOverDiv.style.backgroundColor = 'transparent'
     gameOverDiv.style.width = '100vw'
     gameOverDiv.style.height = '100vh'
+    gameOverDiv.style.position = 'fixed'
+    gameOverDiv.style.left = '0'
+    gameOverDiv.style.top = '0'
+    gameOverDiv.style.display = 'flex'
+    gameOverDiv.style.flexDirection = 'column'
+    gameOverDiv.style.alignItems = 'center'
+    gameOverDiv.style.justifyContent = 'center'
+    gameOverDiv.style.gap = '5px'
+    gameOverDiv.style.pointerEvents = 'none'
 
     //canvas codes
     const canvas = document.createElement('canvas')
@@ -36,11 +45,11 @@ if (typeof document !== 'undefined') {
     const baseBallSpeed = 20
     let speedY = 0
     let speedX = 0
-    let computerSpeed = 12
+    let computerSpeed = 20
     // score
     let playerScore = 0
     let botScore = 0
-    const winningScore = 7
+    const winningScore = 2
     let isNewGame = true
     let isGameOver = false
     const botAimDeadzone = 4
@@ -51,13 +60,29 @@ if (typeof document !== 'undefined') {
       }
     }
     const showGameOverMsg = (winner: string) => {
-      //hide canvas
-      canvas.hidden = true
       gameOverDiv.textContent = ''
       const title = document.createElement('h1')
-      title.textContent = `${winner} Wins!!!`
+      title.textContent = `${winner} WINS`
+      title.style.fontFamily = scoreFontFamily
+      title.style.fontSize = '128px'
+      title.style.fontWeight = '700'
+      title.style.textAlign = 'center'
+      title.style.color = 'white'
+      title.style.margin = '0'
+      title.style.lineHeight = '1'
       const playAgainBtn = document.createElement('button')
-      playAgainBtn.textContent = 'Play Again'
+      playAgainBtn.textContent = 'PLAY AGAIN'
+      playAgainBtn.style.pointerEvents = 'auto'
+      playAgainBtn.style.fontFamily = scoreFontFamily
+      playAgainBtn.style.fontSize = '32px'
+      playAgainBtn.style.fontWeight = '500'
+      playAgainBtn.style.letterSpacing = '0.15em'
+      playAgainBtn.style.margin = '0'
+      playAgainBtn.style.marginTop = '-8px'
+      playAgainBtn.style.padding = '0'
+      playAgainBtn.style.border = '0'
+      playAgainBtn.style.background = 'transparent'
+      playAgainBtn.style.lineHeight = '1'
       playAgainBtn.addEventListener('click', startGame)
       gameOverDiv.append(title, playAgainBtn)
       body.appendChild(gameOverDiv)
@@ -194,7 +219,6 @@ if (typeof document !== 'undefined') {
       //inside startGame function
       if (restartFromGameOver) {
         body.removeChild(gameOverDiv)
-        canvas.hidden = false
       }
       playerScore = 0
       botScore = 0
@@ -233,7 +257,7 @@ if (typeof document !== 'undefined') {
         botAI()
         gameOver()
         if (isGameOver) {
-            const winner = playerScore === winningScore ? 'Player' : 'Bot'
+            const winner = playerScore === winningScore ? 'PLAYER' : 'BOT'
             showGameOverMsg(winner)
             return
         }
