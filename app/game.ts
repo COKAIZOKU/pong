@@ -188,6 +188,32 @@ if (typeof document !== 'undefined') {
         //canvas background
         context.fillStyle = '#0483F8'
         context.fillRect( 0, 0, width, height)
+        const getMarkerOpacity = (paddleY: number) => {
+            const distanceFromBottom = height - (paddleY + paddleHeight)
+            const maxDistance = height - paddleHeight
+            return Math.max(0.2, Math.min(1, 1 - (distanceFromBottom / maxDistance) * 0.8))
+        }
+        const getBallMarkerOpacity = () => {
+            const distanceFromBottom = height - (ballY + ballRadius)
+            const maxDistance = height - ballRadius
+            return Math.max(0.2, Math.min(1, 1 - (distanceFromBottom / maxDistance) * 0.8))
+        }
+        //paddle markers
+        context.save()
+        context.filter = 'blur(3px)'
+        context.beginPath()
+        context.fillStyle = `rgba(0, 69, 245, ${getBallMarkerOpacity()})`
+        context.ellipse(ballX, height - 9, 20, 5, 0, 0, 2 * Math.PI)
+        context.fill()
+        context.beginPath()
+        context.fillStyle = `rgba(0, 69, 245, ${getMarkerOpacity(paddleLeftY)})`
+        context.ellipse(leftPaddleX + paddleWidth / 2, height - 9, 12, 5, 0, 0, 2 * Math.PI)
+        context.fill()
+        context.beginPath()
+        context.fillStyle = `rgba(0, 69, 245, ${getMarkerOpacity(paddleRightY)})`
+        context.ellipse(rightPaddleX + paddleWidth / 2, height - 9, 12, 5, 0, 0, 2 * Math.PI)
+        context.fill()
+        context.restore()
         //paddle color
         context.fillStyle = 'black'
         //left paddle
