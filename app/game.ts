@@ -18,11 +18,29 @@ if (typeof document !== 'undefined') {
     //canvas codes
     const canvas = document.createElement('canvas')
     const ballImage = new Image()
-    ballImage.src = '/ball.svg'
+    ballImage.src = '/ball.png'
     const context = canvas.getContext('2d')
     if (!context) {
         throw new Error('2D context is not supported in this browser.')
     }
+    const createBlurredMarker = (radiusX: number, radiusY: number, blur: number) => {
+        const markerCanvas = document.createElement('canvas')
+        const padding = blur * 3
+        markerCanvas.width = (radiusX + padding) * 2
+        markerCanvas.height = (radiusY + padding) * 2
+        const markerContext = markerCanvas.getContext('2d')
+        if (!markerContext) {
+            throw new Error('2D context is not supported in this browser.')
+        }
+        markerContext.filter = `blur(${blur}px)`
+        markerContext.fillStyle = '#0045F5'
+        markerContext.beginPath()
+        markerContext.ellipse(markerCanvas.width / 2, markerCanvas.height / 2, radiusX, radiusY, 0, 0, 2 * Math.PI)
+        markerContext.fill()
+        return markerCanvas
+    }
+    const ballMarker = createBlurredMarker(20, 5, 3)
+    const paddleMarker = createBlurredMarker(10, 5, 3)
     const bottomGap = 100
     const playableBottomMargin = 10
     let width = window.innerWidth
@@ -202,19 +220,12 @@ if (typeof document !== 'undefined') {
         }
         //paddle markers
         context.save()
-        context.filter = 'blur(3px)'
-        context.beginPath()
-        context.fillStyle = `rgba(0, 69, 245, ${getBallMarkerOpacity()})`
-        context.ellipse(ballX, height - 9, 20, 5, 0, 0, 2 * Math.PI)
-        context.fill()
-        context.beginPath()
-        context.fillStyle = `rgba(0, 69, 245, ${getMarkerOpacity(paddleLeftY)})`
-        context.ellipse(leftPaddleX + paddleWidth / 2, height - 9, 10, 5, 0, 0, 2 * Math.PI)
-        context.fill()
-        context.beginPath()
-        context.fillStyle = `rgba(0, 69, 245, ${getMarkerOpacity(paddleRightY)})`
-        context.ellipse(rightPaddleX + paddleWidth / 2, height - 9, 10, 5, 0, 0, 2 * Math.PI)
-        context.fill()
+        context.globalAlpha = getBallMarkerOpacity()
+        context.drawImage(ballMarker, ballX - ballMarker.width / 2, height - 9 - ballMarker.height / 2)
+        context.globalAlpha = getMarkerOpacity(paddleLeftY)
+        context.drawImage(paddleMarker, leftPaddleX + paddleWidth / 2 - paddleMarker.width / 2, height - 9 - paddleMarker.height / 2)
+        context.globalAlpha = getMarkerOpacity(paddleRightY)
+        context.drawImage(paddleMarker, rightPaddleX + paddleWidth / 2 - paddleMarker.width / 2, height - 9 - paddleMarker.height / 2)
         context.restore()
         //paddle color
         context.fillStyle = 'black'
