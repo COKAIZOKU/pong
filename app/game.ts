@@ -17,6 +17,8 @@ if (typeof document !== 'undefined') {
 
     //canvas codes
     const canvas = document.createElement('canvas')
+    const ballImage = new Image()
+    ballImage.src = '/ball.svg'
     const context = canvas.getContext('2d')
     if (!context) {
         throw new Error('2D context is not supported in this browser.')
@@ -41,11 +43,11 @@ if (typeof document !== 'undefined') {
     //global variables
     let ballX = width / 2
     let ballY = height / 2
-    const ballRadius = 15
+    const ballRadius = 19
     const baseBallSpeed = 20
     let speedY = 0
     let speedX = 0
-    let computerSpeed = 20
+    let computerSpeed = 30
     // score
     let playerScore = 0
     let botScore = 0
@@ -71,11 +73,11 @@ if (typeof document !== 'undefined') {
       title.style.margin = '0'
       title.style.lineHeight = '1'
       const playAgainBtn = document.createElement('button')
-      playAgainBtn.textContent = 'PLAY AGAIN'
+      playAgainBtn.textContent = '— PLAY AGAIN —'
       playAgainBtn.style.pointerEvents = 'auto'
       playAgainBtn.style.fontFamily = scoreFontFamily
       playAgainBtn.style.fontSize = '32px'
-      playAgainBtn.style.fontWeight = '500'
+      playAgainBtn.style.fontWeight = '600'
       playAgainBtn.style.letterSpacing = '0.15em'
       playAgainBtn.style.margin = '0'
       playAgainBtn.style.marginTop = '-8px'
@@ -193,11 +195,11 @@ if (typeof document !== 'undefined') {
         //right paddle
         context.fillRect(rightPaddleX, paddleRightY, paddleWidth, paddleHeight)
         //ball
-        context.beginPath()
-        context.arc(ballX, ballY, ballRadius, 2 * Math.PI, Number(false))
-        context.fillStyle = 'white'
-        context.fill()
+        if (ballImage.complete) {
+            context.drawImage(ballImage, ballX - ballRadius, ballY - ballRadius, ballRadius * 2, ballRadius * 2)
+        }
         // score
+        context.fillStyle = 'white'
         context.font = `700 64px ${scoreFontFamily}`
         context.textAlign = 'right'
         context.fillText(String(playerScore), canvas.width / 2 - 20, 80)
