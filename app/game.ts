@@ -24,6 +24,7 @@ if (typeof document !== 'undefined') {
         throw new Error('2D context is not supported in this browser.')
     }
     const bottomGap = 100
+    const playableBottomMargin = 10
     let width = window.innerWidth
     let height = window.innerHeight - bottomGap
 
@@ -55,7 +56,7 @@ if (typeof document !== 'undefined') {
     let isNewGame = true
     let isGameOver = false
     const botAimDeadzone = 4
-    const clampPaddleY = (value: number) => Math.max(0, Math.min(height - paddleHeight, value))
+    const clampPaddleY = (value: number) => Math.max(0, Math.min(height - playableBottomMargin - paddleHeight, value))
     const gameOver = () => {
       if(playerScore === winningScore || botScore === winningScore) {
         isGameOver = true
@@ -111,7 +112,8 @@ if (typeof document !== 'undefined') {
         if (ballY - ballRadius <= 0 && speedY < 0) {
             speedY = -speedY
         }
-        if (ballY + ballRadius >= height && speedY > 0) {
+        if (ballY + ballRadius >= height - playableBottomMargin && speedY > 0) {
+            ballY = height - playableBottomMargin - ballRadius
             speedY = -speedY
         }
         // Bounce off left paddle
@@ -160,7 +162,7 @@ if (typeof document !== 'undefined') {
             const framesUntilIntercept = travelX / speedX
             const rawY = ballY + speedY * framesUntilIntercept
             const minY = ballRadius
-            const maxY = height - ballRadius
+            const maxY = height - playableBottomMargin - ballRadius
             const playHeight = maxY - minY
             const period = playHeight * 2
             let foldedY = (rawY - minY) % period
@@ -207,11 +209,11 @@ if (typeof document !== 'undefined') {
         context.fill()
         context.beginPath()
         context.fillStyle = `rgba(0, 69, 245, ${getMarkerOpacity(paddleLeftY)})`
-        context.ellipse(leftPaddleX + paddleWidth / 2, height - 9, 12, 5, 0, 0, 2 * Math.PI)
+        context.ellipse(leftPaddleX + paddleWidth / 2, height - 9, 10, 5, 0, 0, 2 * Math.PI)
         context.fill()
         context.beginPath()
         context.fillStyle = `rgba(0, 69, 245, ${getMarkerOpacity(paddleRightY)})`
-        context.ellipse(rightPaddleX + paddleWidth / 2, height - 9, 12, 5, 0, 0, 2 * Math.PI)
+        context.ellipse(rightPaddleX + paddleWidth / 2, height - 9, 10, 5, 0, 0, 2 * Math.PI)
         context.fill()
         context.restore()
         //paddle color
