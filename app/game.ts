@@ -1,6 +1,10 @@
 if (typeof document !== 'undefined') {
     const { body } = document
+
+    // score
     const scoreFontFamily = window.getComputedStyle(body).fontFamily
+
+    // gameover
     const gameOverDiv = document.createElement('div')
     gameOverDiv.style.backgroundColor = 'transparent'
     gameOverDiv.style.width = '100vw'
@@ -15,14 +19,17 @@ if (typeof document !== 'undefined') {
     gameOverDiv.style.gap = '5px'
     gameOverDiv.style.pointerEvents = 'none'
 
-    //canvas codes
+    // canvas
     const canvas = document.createElement('canvas')
+
+    // ball
     const ballImage = new Image()
     ballImage.src = '/ball.png'
     const context = canvas.getContext('2d')
     if (!context) {
         throw new Error('2D context is not supported in this browser.')
     }
+    // shadows
     const createBlurredMarker = (radiusX: number, radiusY: number, blur: number) => {
         const markerCanvas = document.createElement('canvas')
         const padding = blur * 3
@@ -46,20 +53,14 @@ if (typeof document !== 'undefined') {
     let width = window.innerWidth
     let height = window.innerHeight - bottomGap
 
-    //paddle code
+    // paddle
     const paddleHeight = 150
     const paddleWidth = 20
     const leftPaddleX = 30
     let rightPaddleX = width - paddleWidth - 30
     let paddleRightY = (height - paddleHeight) / 2
     let paddleLeftY = (height - paddleHeight) / 2
-    let paddleBottomX = width / 2 - paddleWidth / 2
-    let paddleTopX = width / 2 - paddleWidth / 2
-    const paddleDiff = paddleWidth / 2
-    let playerMoved = false
-    let paddleContact = false
-    let trajectoryX = 0
-    //global variables
+    // ball
     let ballX = width / 2
     let ballY = height / 2
     const ballRadius = 19
@@ -75,6 +76,7 @@ if (typeof document !== 'undefined') {
     let isGameOver = false
     const botAimDeadzone = 4
     const clampPaddleY = (value: number) => Math.max(0, Math.min(height - playableBottomMargin - paddleHeight, value))
+    // gameover
     const gameOver = () => {
       if(playerScore === winningScore || botScore === winningScore) {
         isGameOver = true
@@ -108,6 +110,7 @@ if (typeof document !== 'undefined') {
       gameOverDiv.append(title, playAgainBtn)
       body.appendChild(gameOverDiv)
     }
+    // ball
     const setBallVelocity = (direction: -1 | 1) => {
         const angle = (Math.random() * Math.PI) / 3 - Math.PI / 6
         speedX = direction * baseBallSpeed * Math.cos(angle)
@@ -123,7 +126,6 @@ if (typeof document !== 'undefined') {
         ballX = width / 2
         ballY = height / 2
         setBallVelocity(Math.random() < 0.5 ? -1 : 1)
-        paddleContact = false
     }
     const ballBoundaries = () => {
         // Bounce off Top/Bottom walls
@@ -168,6 +170,7 @@ if (typeof document !== 'undefined') {
             playerScore++
         }
     }
+    // AIbot
     const botAI = () => {
         const predictBallYAtRightPaddle = () => {
             if (speedX <= 0) {
@@ -203,7 +206,7 @@ if (typeof document !== 'undefined') {
         paddleRightY = clampPaddleY(paddleRightY)
     }
 
-    //generating canvas
+    // canvas
     const renderCanvas = () => {
         //canvas background
         context.fillStyle = '#0483F8'
@@ -218,7 +221,7 @@ if (typeof document !== 'undefined') {
             const maxDistance = height - ballRadius
             return Math.max(0.2, Math.min(1, 1 - (distanceFromBottom / maxDistance) * 0.8))
         }
-        //paddle markers
+        // shadows
         context.save()
         context.globalAlpha = getBallMarkerOpacity()
         context.drawImage(ballMarker, ballX - ballMarker.width / 2, height - 9 - ballMarker.height / 2)
@@ -227,13 +230,13 @@ if (typeof document !== 'undefined') {
         context.globalAlpha = getMarkerOpacity(paddleRightY)
         context.drawImage(paddleMarker, rightPaddleX + paddleWidth / 2 - paddleMarker.width / 2, height - 9 - paddleMarker.height / 2)
         context.restore()
-        //paddle color
+        // paddle
         context.fillStyle = 'black'
         //left paddle
         context.fillRect(leftPaddleX, paddleLeftY, paddleWidth, paddleHeight)
         //right paddle
         context.fillRect(rightPaddleX, paddleRightY, paddleWidth, paddleHeight)
-        //ball
+        // ball
         if (ballImage.complete) {
             context.drawImage(ballImage, ballX - ballRadius, ballY - ballRadius, ballRadius * 2, ballRadius * 2)
         }
@@ -245,6 +248,7 @@ if (typeof document !== 'undefined') {
         context.textAlign = 'left'
         context.fillText(String(botScore), canvas.width / 2 + 20, 80)
     }
+    // canvas
     const createCanvas = () => {
         canvas.width = width
         canvas.height = height
@@ -255,6 +259,7 @@ if (typeof document !== 'undefined') {
         body.appendChild(canvas)
         renderCanvas()
     }
+    // gameover
     const startGame = () => {
       const restartFromGameOver = isGameOver && !isNewGame
       //inside startGame function
@@ -273,11 +278,11 @@ if (typeof document !== 'undefined') {
         window.requestAnimationFrame(animate)
       }
     }
+    // paddle
     const handleMouseMove = (event: MouseEvent) => {
         const rect = canvas.getBoundingClientRect()
         const mouseY = event.clientY - rect.top
         paddleLeftY = clampPaddleY(mouseY - paddleHeight / 2)
-        playerMoved = true
     }
     const handleResize = () => {
         width = window.innerWidth
@@ -289,6 +294,7 @@ if (typeof document !== 'undefined') {
         paddleRightY = clampPaddleY(paddleRightY)
         renderCanvas()
     }
+    // canvas
     const animate = () => {
         if (isGameOver) {
             return
