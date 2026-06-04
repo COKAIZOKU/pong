@@ -60,6 +60,7 @@ if (typeof document !== 'undefined') {
     let rightPaddleX = width - paddleWidth - 30
     let paddleRightY = (height - paddleHeight) / 2
     let paddleLeftY = (height - paddleHeight) / 2
+    let playerMoved = false
     // ball
     let ballX = width / 2
     let ballY = height / 2
@@ -68,14 +69,20 @@ if (typeof document !== 'undefined') {
     let speedY = 0
     let speedX = 0
     let computerSpeed = 30
+    const beatableComputerSpeed = 10
     // score
     let playerScore = 0
     let botScore = 0
     const winningScore = 2
     let isNewGame = true
     let isGameOver = false
-    const botAimDeadzone = 4
+    const botAimDeadzone = 15
     const clampPaddleY = (value: number) => Math.max(0, Math.min(height - playableBottomMargin - paddleHeight, value))
+
+    // settings
+    let isUnbeatable = true
+    let beatableAiFrameCount = 0
+
     // gameover
     const gameOver = () => {
       if(playerScore === winningScore || botScore === winningScore) {
@@ -107,7 +114,30 @@ if (typeof document !== 'undefined') {
       playAgainBtn.style.background = 'transparent'
       playAgainBtn.style.lineHeight = '1'
       playAgainBtn.addEventListener('click', startGame)
-      gameOverDiv.append(title, playAgainBtn)
+      const settings = document.createElement('div')
+      settings.style.display = 'flex'
+      settings.style.alignItems = 'center'
+      settings.style.gap = '16px'
+      settings.style.pointerEvents = 'auto'
+      const unbeatableLabel = document.createElement('span')
+      unbeatableLabel.textContent = 'UNBEATABLE BOT'
+      unbeatableLabel.style.fontFamily = scoreFontFamily
+      unbeatableLabel.style.fontSize = '24px'
+      unbeatableLabel.style.fontWeight = '600'
+      unbeatableLabel.style.color = 'white'
+      const unbeatableBtn = document.createElement('button')
+      unbeatableBtn.textContent = isUnbeatable ? 'TRUE' : 'FALSE'
+      unbeatableBtn.style.background = 'transparent'
+      unbeatableBtn.style.color = 'black'
+      unbeatableBtn.style.fontFamily = scoreFontFamily
+      unbeatableBtn.style.fontSize = '24px'
+      unbeatableBtn.style.fontWeight = '600'
+      unbeatableBtn.addEventListener('click', () => {
+        isUnbeatable = !isUnbeatable
+        unbeatableBtn.textContent = isUnbeatable ? 'TRUE' : 'FALSE'
+      })
+      settings.append(unbeatableLabel, unbeatableBtn)
+      gameOverDiv.append(title, playAgainBtn, settings)
       body.appendChild(gameOverDiv)
     }
     // ball
@@ -171,7 +201,7 @@ if (typeof document !== 'undefined') {
         }
     }
     // AIbot
-    const botAI = () => {
+    const unbeatableBotAI = () => {
         const predictBallYAtRightPaddle = () => {
             if (speedX <= 0) {
                 return height / 2
@@ -204,6 +234,28 @@ if (typeof document !== 'undefined') {
         const step = Math.sign(deltaY) * Math.min(computerSpeed, Math.abs(deltaY))
         paddleRightY += step
         paddleRightY = clampPaddleY(paddleRightY)
+    }
+    const beatableBotAI = () => {
+        if (playerMoved) {
+            const paddleCenter = paddleRightY + paddleHeight / 2
+            const deltaY = ballY - paddleCenter
+            if (Math.abs(deltaY) <= botAimDeadzone) {
+                return
+            }
+            const step = Math.sign(deltaY) * Math.min(beatableComputerSpeed, Math.abs(deltaY))
+            paddleRightY += step
+            paddleRightY = clampPaddleY(paddleRightY)
+        }
+    }
+    const botAI = () => {
+        if (isUnbeatable) {
+            unbeatableBotAI()
+        } else {
+            beatableAiFrameCount += 1
+            if (beatableAiFrameCount % 1 === 0) {
+                beatableBotAI()
+            }
+        }
     }
 
     // canvas
@@ -270,6 +322,7 @@ if (typeof document !== 'undefined') {
       botScore = 0
       paddleLeftY = (height - paddleHeight) / 2
       paddleRightY = (height - paddleHeight) / 2
+      playerMoved = false
       ballReset()
       renderCanvas()
       isGameOver = false
@@ -283,6 +336,7 @@ if (typeof document !== 'undefined') {
         const rect = canvas.getBoundingClientRect()
         const mouseY = event.clientY - rect.top
         paddleLeftY = clampPaddleY(mouseY - paddleHeight / 2)
+        playerMoved = true
     }
     const handleResize = () => {
         width = window.innerWidth
