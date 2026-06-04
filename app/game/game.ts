@@ -240,10 +240,7 @@ if (typeof document !== 'undefined') {
     const createCanvas = () => {
         canvas.width = width
         canvas.height = height
-        canvas.style.position = 'fixed'
-        canvas.style.top = '0'
-        canvas.style.left = '0'
-        canvas.style.display = 'block'
+        canvas.className = 'game-canvas'
         body.appendChild(canvas)
         renderCanvas()
     }
@@ -303,7 +300,6 @@ if (typeof document !== 'undefined') {
     }
     const gameOverScreen = createGameOverScreen({
       body,
-      fontFamily: scoreFontFamily,
       getIsUnbeatable: () => isUnbeatable,
       onToggleUnbeatable: () => {
         isUnbeatable = !isUnbeatable
@@ -317,4 +313,3 @@ if (typeof document !== 'undefined') {
     window.addEventListener('resize', handleResize)
     window.requestAnimationFrame(animate)
 }
-
