@@ -1,6 +1,6 @@
 'use client'
 
-import './game'
+import './game/game'
 
 export default function Page() {
   return null

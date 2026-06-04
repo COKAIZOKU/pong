@@ -1,23 +1,10 @@
+import { createGameOverScreen } from './game-over'
+
 if (typeof document !== 'undefined') {
     const { body } = document
 
     // score
     const scoreFontFamily = window.getComputedStyle(body).fontFamily
-
-    // gameover
-    const gameOverDiv = document.createElement('div')
-    gameOverDiv.style.backgroundColor = 'transparent'
-    gameOverDiv.style.width = '100vw'
-    gameOverDiv.style.height = '100vh'
-    gameOverDiv.style.position = 'fixed'
-    gameOverDiv.style.left = '0'
-    gameOverDiv.style.top = '0'
-    gameOverDiv.style.display = 'flex'
-    gameOverDiv.style.flexDirection = 'column'
-    gameOverDiv.style.alignItems = 'center'
-    gameOverDiv.style.justifyContent = 'center'
-    gameOverDiv.style.gap = '5px'
-    gameOverDiv.style.pointerEvents = 'none'
 
     // canvas
     const canvas = document.createElement('canvas')
@@ -88,57 +75,6 @@ if (typeof document !== 'undefined') {
       if(playerScore === winningScore || botScore === winningScore) {
         isGameOver = true
       }
-    }
-    const showGameOverMsg = (winner: string) => {
-      gameOverDiv.textContent = ''
-      const title = document.createElement('h1')
-      title.textContent = `${winner} WINS`
-      title.style.fontFamily = scoreFontFamily
-      title.style.fontSize = '128px'
-      title.style.fontWeight = '700'
-      title.style.textAlign = 'center'
-      title.style.color = 'white'
-      title.style.margin = '0'
-      title.style.lineHeight = '1'
-      const playAgainBtn = document.createElement('button')
-      playAgainBtn.textContent = '— PLAY AGAIN —'
-      playAgainBtn.style.pointerEvents = 'auto'
-      playAgainBtn.style.fontFamily = scoreFontFamily
-      playAgainBtn.style.fontSize = '32px'
-      playAgainBtn.style.fontWeight = '600'
-      playAgainBtn.style.letterSpacing = '0.15em'
-      playAgainBtn.style.margin = '0'
-      playAgainBtn.style.marginTop = '-8px'
-      playAgainBtn.style.padding = '0'
-      playAgainBtn.style.border = '0'
-      playAgainBtn.style.background = 'transparent'
-      playAgainBtn.style.lineHeight = '1'
-      playAgainBtn.addEventListener('click', startGame)
-      const settings = document.createElement('div')
-      settings.style.display = 'flex'
-      settings.style.alignItems = 'center'
-      settings.style.gap = '16px'
-      settings.style.pointerEvents = 'auto'
-      const unbeatableLabel = document.createElement('span')
-      unbeatableLabel.textContent = 'UNBEATABLE BOT'
-      unbeatableLabel.style.fontFamily = scoreFontFamily
-      unbeatableLabel.style.fontSize = '24px'
-      unbeatableLabel.style.fontWeight = '600'
-      unbeatableLabel.style.color = 'white'
-      const unbeatableBtn = document.createElement('button')
-      unbeatableBtn.textContent = isUnbeatable ? 'TRUE' : 'FALSE'
-      unbeatableBtn.style.background = 'transparent'
-      unbeatableBtn.style.color = 'black'
-      unbeatableBtn.style.fontFamily = scoreFontFamily
-      unbeatableBtn.style.fontSize = '24px'
-      unbeatableBtn.style.fontWeight = '600'
-      unbeatableBtn.addEventListener('click', () => {
-        isUnbeatable = !isUnbeatable
-        unbeatableBtn.textContent = isUnbeatable ? 'TRUE' : 'FALSE'
-      })
-      settings.append(unbeatableLabel, unbeatableBtn)
-      gameOverDiv.append(title, playAgainBtn, settings)
-      body.appendChild(gameOverDiv)
     }
     // ball
     const setBallVelocity = (direction: -1 | 1) => {
@@ -316,7 +252,7 @@ if (typeof document !== 'undefined') {
       const restartFromGameOver = isGameOver && !isNewGame
       //inside startGame function
       if (restartFromGameOver) {
-        body.removeChild(gameOverDiv)
+        gameOverScreen.hide()
       }
       playerScore = 0
       botScore = 0
@@ -359,15 +295,26 @@ if (typeof document !== 'undefined') {
         gameOver()
         if (isGameOver) {
             const winner = playerScore === winningScore ? 'PLAYER' : 'BOT'
-            showGameOverMsg(winner)
+            gameOverScreen.show(winner)
             return
         }
         renderCanvas()
         window.requestAnimationFrame(animate)
     }
+    const gameOverScreen = createGameOverScreen({
+      body,
+      fontFamily: scoreFontFamily,
+      getIsUnbeatable: () => isUnbeatable,
+      onToggleUnbeatable: () => {
+        isUnbeatable = !isUnbeatable
+        return isUnbeatable
+      },
+      onPlayAgain: startGame,
+    })
     createCanvas()
     startGame()
     canvas.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('resize', handleResize)
     window.requestAnimationFrame(animate)
 }
+
