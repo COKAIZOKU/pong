@@ -76,6 +76,29 @@ body {
   pointer-events: auto;
 }
 
+
+.game-over__play-again-letter {
+  display: inline-block;
+  animation: wiggleWiggle 1.25s steps(2, end) infinite alternate;
+  animation-delay: var(--letter-delay);
+  transform: translateY(3px);
+}
+
+@keyframes wiggleWiggle {
+  0% {
+    transform: translateY(0);
+  }
+
+  10% {
+    transform: translateY(3px);
+  }
+
+  20%,
+  100% {
+    transform: translateY(3px);
+  }
+}
+
 .game-over__settings {
   display: flex;
   align-items: center;
@@ -94,7 +117,33 @@ body {
 }
 
 .game-over__setting-button {
+  position: relative;
+  width: 92px;
+  height: 32px;
+  overflow: hidden;
+  padding: 0;
   border: 0;
   background: transparent;
   color: black;
+  text-align: left;
+}
+
+.game-over__setting-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+  transform: translateY(0);
+  transition: transform 200ms ease;
+}
+
+.game-over__setting-value--enter {
+  transform: translateY(-110%);
+}
+
+.game-over__setting-value--exit {
+  transform: translateY(110%);
 }

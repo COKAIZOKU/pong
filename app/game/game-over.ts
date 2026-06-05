@@ -22,8 +22,20 @@ export const createGameOverScreen = ({
     title.className = 'game-over__title'
 
     const playAgainBtn = document.createElement('button')
-    playAgainBtn.textContent = '\u2014 PLAY AGAIN \u2014'
     playAgainBtn.className = 'game-over__play-again'
+    playAgainBtn.append(document.createTextNode('\u2014 '))
+    'PLAY AGAIN'.split('').forEach((letter, index) => {
+      if (letter === ' ') {
+        playAgainBtn.append(document.createTextNode(' '))
+        return
+      }
+      const letterSpan = document.createElement('span')
+      letterSpan.textContent = letter
+      letterSpan.className = 'game-over__play-again-letter'
+      letterSpan.style.setProperty('--letter-delay', `${index * 0.05}s`)
+      playAgainBtn.append(letterSpan)
+    })
+    playAgainBtn.append(document.createTextNode(' \u2014'))
     playAgainBtn.addEventListener('click', onPlayAgain)
 
     const settings = document.createElement('div')
@@ -34,10 +46,33 @@ export const createGameOverScreen = ({
     unbeatableLabel.className = 'game-over__setting-label'
 
     const unbeatableBtn = document.createElement('button')
-    unbeatableBtn.textContent = getIsUnbeatable() ? 'TRUE' : 'FALSE'
     unbeatableBtn.className = 'game-over__setting-button'
+    const createSettingValue = (value: string) => {
+      const valueSpan = document.createElement('span')
+      valueSpan.textContent = value
+      valueSpan.className = 'game-over__setting-value'
+      return valueSpan
+    }
+    let currentValue = createSettingValue(getIsUnbeatable() ? 'TRUE' : 'FALSE')
+    let isToggleAnimating = false
+    unbeatableBtn.append(currentValue)
     unbeatableBtn.addEventListener('click', () => {
-      unbeatableBtn.textContent = onToggleUnbeatable() ? 'TRUE' : 'FALSE'
+      if (isToggleAnimating) {
+        return
+      }
+      isToggleAnimating = true
+      const nextValue = createSettingValue(onToggleUnbeatable() ? 'TRUE' : 'FALSE')
+      nextValue.classList.add('game-over__setting-value--enter')
+      unbeatableBtn.append(nextValue)
+      requestAnimationFrame(() => {
+        currentValue.classList.add('game-over__setting-value--exit')
+        nextValue.classList.remove('game-over__setting-value--enter')
+      })
+      window.setTimeout(() => {
+        currentValue.remove()
+        currentValue = nextValue
+        isToggleAnimating = false
+      }, 200)
     })
 
     settings.append(unbeatableLabel, unbeatableBtn)

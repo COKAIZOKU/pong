@@ -60,7 +60,7 @@ if (typeof document !== 'undefined') {
     // score
     let playerScore = 0
     let botScore = 0
-    const winningScore = 2
+    const winningScore = 5
     let isNewGame = true
     let isGameOver = false
     const botAimDeadzone = 15
