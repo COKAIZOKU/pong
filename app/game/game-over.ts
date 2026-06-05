@@ -17,10 +17,12 @@ export const createGameOverScreen = ({
   const show = (winner: string) => {
     gameOverDiv.textContent = ''
 
+    // player wins
     const title = document.createElement('h1')
     title.textContent = `${winner} WINS`
     title.className = 'game-over__title'
 
+    // play again
     const playAgainBtn = document.createElement('button')
     playAgainBtn.className = 'game-over__play-again'
     playAgainBtn.append(document.createTextNode('\u2014 '))
@@ -41,6 +43,7 @@ export const createGameOverScreen = ({
     const settings = document.createElement('div')
     settings.className = 'game-over__settings'
 
+    // unbeatable button true/false
     const unbeatableLabel = document.createElement('span')
     unbeatableLabel.textContent = 'UNBEATABLE BOT'
     unbeatableLabel.className = 'game-over__setting-label'
@@ -54,6 +57,8 @@ export const createGameOverScreen = ({
       return valueSpan
     }
     let currentValue = createSettingValue(getIsUnbeatable() ? 'TRUE' : 'FALSE')
+
+    // slide animation
     let isToggleAnimating = false
     unbeatableBtn.append(currentValue)
     unbeatableBtn.addEventListener('click', () => {

@@ -32,6 +32,7 @@ body {
   height: 100vh;
 }
 
+/* canvas */
 .game-canvas {
   position: fixed;
   top: 0;
@@ -39,6 +40,7 @@ body {
   display: block;
 }
 
+/* game over screen */
 .game-over {
   position: fixed;
   z-index: 1;
@@ -63,7 +65,7 @@ body {
   line-height: 1;
   text-align: center;
 }
-
+/* play again and its animation */
 .game-over__play-again {
   margin: -8px 0 0;
   padding: 0;
@@ -75,7 +77,6 @@ body {
   letter-spacing: 0.15em;
   pointer-events: auto;
 }
-
 
 .game-over__play-again-letter {
   display: inline-block;
@@ -99,6 +100,7 @@ body {
   }
 }
 
+/* unbeatable settings and its animation */
 .game-over__settings {
   display: flex;
   align-items: center;

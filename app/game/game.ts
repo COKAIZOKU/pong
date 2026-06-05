@@ -16,6 +16,7 @@ if (typeof document !== 'undefined') {
     if (!context) {
         throw new Error('2D context is not supported in this browser.')
     }
+
     // shadows
     const createBlurredMarker = (radiusX: number, radiusY: number, blur: number) => {
         const markerCanvas = document.createElement('canvas')
@@ -48,6 +49,7 @@ if (typeof document !== 'undefined') {
     let paddleRightY = (height - paddleHeight) / 2
     let paddleLeftY = (height - paddleHeight) / 2
     let playerMoved = false
+
     // ball
     let ballX = width / 2
     let ballY = height / 2
@@ -55,8 +57,9 @@ if (typeof document !== 'undefined') {
     const baseBallSpeed = 20
     let speedY = 0
     let speedX = 0
-    let computerSpeed = 30
+    const computerSpeed = 30
     const beatableComputerSpeed = 10
+    
     // score
     let playerScore = 0
     let botScore = 0
@@ -76,6 +79,7 @@ if (typeof document !== 'undefined') {
         isGameOver = true
       }
     }
+
     // ball
     const setBallVelocity = (direction: -1 | 1) => {
         const angle = (Math.random() * Math.PI) / 3 - Math.PI / 6
@@ -83,9 +87,9 @@ if (typeof document !== 'undefined') {
         speedY = baseBallSpeed * Math.sin(angle)
     }
     const ballMove = () => {
-        // Vertical Speed
+        // vertical speed
         ballY += speedY
-        // Horizontal Speed
+        // horizontal speed
         ballX += speedX
     }
     const ballReset = () => {
@@ -94,7 +98,7 @@ if (typeof document !== 'undefined') {
         setBallVelocity(Math.random() < 0.5 ? -1 : 1)
     }
     const ballBoundaries = () => {
-        // Bounce off Top/Bottom walls
+        // bounce off top/bottom walls
         if (ballY - ballRadius <= 0 && speedY < 0) {
             speedY = -speedY
         }
@@ -102,7 +106,7 @@ if (typeof document !== 'undefined') {
             ballY = height - playableBottomMargin - ballRadius
             speedY = -speedY
         }
-        // Bounce off left paddle
+        // bounce off left paddle
         if (
             ballX - ballRadius <= leftPaddleX + paddleWidth &&
             ballX - ballRadius >= leftPaddleX &&
@@ -114,7 +118,7 @@ if (typeof document !== 'undefined') {
             speedX = Math.abs(speedX)
             ballX = leftPaddleX + paddleWidth + ballRadius
         }
-        // Bounce off right paddle
+        // bounce off right paddle
         if (
             ballX + ballRadius >= rightPaddleX &&
             ballX + ballRadius <= rightPaddleX + paddleWidth &&
@@ -126,7 +130,7 @@ if (typeof document !== 'undefined') {
             speedX = -Math.abs(speedX)
             ballX = rightPaddleX - ballRadius
         }
-        // Score when ball passes left/right side
+        // score when ball passes left/right side
         if (ballX < 0) {
             ballReset()
             botScore++
@@ -136,7 +140,8 @@ if (typeof document !== 'undefined') {
             playerScore++
         }
     }
-    // AIbot
+
+    // bot ai
     const unbeatableBotAI = () => {
         const predictBallYAtRightPaddle = () => {
             if (speedX <= 0) {
@@ -171,6 +176,7 @@ if (typeof document !== 'undefined') {
         paddleRightY += step
         paddleRightY = clampPaddleY(paddleRightY)
     }
+
     const beatableBotAI = () => {
         if (playerMoved) {
             const paddleCenter = paddleRightY + paddleHeight / 2
@@ -183,6 +189,7 @@ if (typeof document !== 'undefined') {
             paddleRightY = clampPaddleY(paddleRightY)
         }
     }
+
     const botAI = () => {
         if (isUnbeatable) {
             unbeatableBotAI()
@@ -244,7 +251,7 @@ if (typeof document !== 'undefined') {
         body.appendChild(canvas)
         renderCanvas()
     }
-    // gameover
+    // game over
     const startGame = () => {
       const restartFromGameOver = isGameOver && !isNewGame
       //inside startGame function
