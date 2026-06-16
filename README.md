@@ -1,4 +1,9 @@
-_This is the freeCodeCamp home project ["Build a Pong Game"](https://www.freecodecamp.org/learn/coding-interview-prep/take-home-projects/build-a-pong-game)_.
+This is the freeCodeCamp home project ["Build a Pong Game"](https://www.freecodecamp.org/learn/coding-interview-prep/take-home-projects/build-a-pong-game).
+- [x] I can control a paddle.
+- [x] The computer can control the other paddle.
+- [x] The computer's paddle is unbeatable. It should never miss the ball.
+- [x] The game keeps track of the player and computer's score.
+- [x] _Extra: The game has the option of a beatable paddle._
 
 # Stack
 TypeScript • React 19 • Next.js
