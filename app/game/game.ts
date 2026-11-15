@@ -54,11 +54,14 @@ if (typeof document !== 'undefined') {
     let ballX = width / 2
     let ballY = height / 2
     const ballRadius = 19
-    const baseBallSpeed = 20
+    const baseBallSpeed = 20 * 60 // pixels per second
     let speedY = 0
     let speedX = 0
-    const computerSpeed = 30
-    const beatableComputerSpeed = 10
+    const computerSpeed = 30 * 60 // pixels per second
+    const beatableComputerSpeed = 10 * 60 // pixels per second
+    let previousFrameTime: number | null = null
+    // Limit each movement to half a paddle width before checking collisions.
+    const maxPhysicsStep = paddleWidth / (2 * baseBallSpeed)
     
     // score
     let playerScore = 0
@@ -86,11 +89,11 @@ if (typeof document !== 'undefined') {
         speedX = direction * baseBallSpeed * Math.cos(angle)
         speedY = baseBallSpeed * Math.sin(angle)
     }
-    const ballMove = () => {
+    const ballMove = (deltaTime: number) => {
         // vertical speed
-        ballY += speedY
+        ballY += speedY * deltaTime
         // horizontal speed
-        ballX += speedX
+        ballX += speedX * deltaTime
     }
     const ballReset = () => {
         ballX = width / 2
@@ -100,6 +103,7 @@ if (typeof document !== 'undefined') {
     const ballBoundaries = () => {
         // bounce off top/bottom walls
         if (ballY - ballRadius <= 0 && speedY < 0) {
+            ballY = ballRadius
             speedY = -speedY
         }
         if (ballY + ballRadius >= height - playableBottomMargin && speedY > 0) {
@@ -108,6 +112,7 @@ if (typeof document !== 'undefined') {
         }
         // bounce off left paddle
         if (
+            speedX < 0 &&
             ballX - ballRadius <= leftPaddleX + paddleWidth &&
             ballX - ballRadius >= leftPaddleX &&
             ballY >= paddleLeftY &&
@@ -120,6 +125,7 @@ if (typeof document !== 'undefined') {
         }
         // bounce off right paddle
         if (
+            speedX > 0 &&
             ballX + ballRadius >= rightPaddleX &&
             ballX + ballRadius <= rightPaddleX + paddleWidth &&
             ballY >= paddleRightY &&
@@ -142,7 +148,7 @@ if (typeof document !== 'undefined') {
     }
 
     // bot ai
-    const unbeatableBotAI = () => {
+    const unbeatableBotAI = (deltaTime: number) => {
         const predictBallYAtRightPaddle = () => {
             if (speedX <= 0) {
                 return height / 2
@@ -151,8 +157,8 @@ if (typeof document !== 'undefined') {
             if (travelX <= 0) {
                 return ballY
             }
-            const framesUntilIntercept = travelX / speedX
-            const rawY = ballY + speedY * framesUntilIntercept
+            const secondsUntilIntercept = travelX / speedX
+            const rawY = ballY + speedY * secondsUntilIntercept
             const minY = ballRadius
             const maxY = height - playableBottomMargin - ballRadius
             const playHeight = maxY - minY
@@ -172,31 +178,31 @@ if (typeof document !== 'undefined') {
         if (Math.abs(deltaY) <= botAimDeadzone) {
             return
         }
-        const step = Math.sign(deltaY) * Math.min(computerSpeed, Math.abs(deltaY))
+        const step = Math.sign(deltaY) * Math.min(computerSpeed * deltaTime, Math.abs(deltaY))
         paddleRightY += step
         paddleRightY = clampPaddleY(paddleRightY)
     }
 
-    const beatableBotAI = () => {
+    const beatableBotAI = (deltaTime: number) => {
         if (playerMoved) {
             const paddleCenter = paddleRightY + paddleHeight / 2
             const deltaY = ballY - paddleCenter
             if (Math.abs(deltaY) <= botAimDeadzone) {
                 return
             }
-            const step = Math.sign(deltaY) * Math.min(beatableComputerSpeed, Math.abs(deltaY))
+            const step = Math.sign(deltaY) * Math.min(beatableComputerSpeed * deltaTime, Math.abs(deltaY))
             paddleRightY += step
             paddleRightY = clampPaddleY(paddleRightY)
         }
     }
 
-    const botAI = () => {
+    const botAI = (deltaTime: number) => {
         if (isUnbeatable) {
-            unbeatableBotAI()
+            unbeatableBotAI(deltaTime)
         } else {
             beatableAiFrameCount += 1
             if (beatableAiFrameCount % 1 === 0) {
-                beatableBotAI()
+                beatableBotAI(deltaTime)
             }
         }
     }
@@ -263,6 +269,7 @@ if (typeof document !== 'undefined') {
       paddleLeftY = (height - paddleHeight) / 2
       paddleRightY = (height - paddleHeight) / 2
       playerMoved = false
+      previousFrameTime = null
       ballReset()
       renderCanvas()
       isGameOver = false
@@ -289,14 +296,21 @@ if (typeof document !== 'undefined') {
         renderCanvas()
     }
     // canvas
-    const animate = () => {
+    const animate = (timestamp: number) => {
         if (isGameOver) {
             return
         }
-        ballMove()
-        ballBoundaries()
-        botAI()
-        gameOver()
+        // Avoid catching up an entire pause after switching tabs or a long stall.
+        const deltaTime = previousFrameTime === null ? 0 : Math.min((timestamp - previousFrameTime) / 1000, 0.1)
+        previousFrameTime = timestamp
+        const steps = Math.ceil(deltaTime / maxPhysicsStep)
+        for (let step = 0; step < steps && !isGameOver; step += 1) {
+            const stepTime = deltaTime / steps
+            ballMove(stepTime)
+            ballBoundaries()
+            botAI(stepTime)
+            gameOver()
+        }
         if (isGameOver) {
             const winner = playerScore === winningScore ? 'PLAYER' : 'BOT'
             gameOverScreen.show(winner)
